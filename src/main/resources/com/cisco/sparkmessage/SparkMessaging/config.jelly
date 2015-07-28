@@ -30,13 +30,13 @@
 	    </f:advanced>
 	</f:section>
 
-    <f:section title="Add Machine Account to Spark Room (if not already present)">
+    <f:section title="Add Machine Account to Spark Rooms (if not already present)">
 	    <f:entry title="OAuth2 Token" field="oauthToken" name="oauthToken">
 	        <f:textbox />
 	    </f:entry>
 
 	    <f:validateButton
-		   title="${%Add Machine to Room}" progress="${%Adding, please wait...}"
+		   title="${%Add Machine to Rooms}" progress="${%Adding, please wait...}"
 		   method="addMachine" with="rooms,oauthToken" />
 	</f:section>
 
