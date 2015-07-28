@@ -26,8 +26,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/*
+    Main class for handing Spark Messaging. Extends the prebuild Notifier
+    class from Hudson.
+*/
 public class SparkMessaging extends Notifier {
 
+    /*
+        Values from build configuration form
+    */
     private final String rooms;
     private final String startMessage;
     private final String failMessage;
@@ -195,7 +202,9 @@ public class SparkMessaging extends Notifier {
 
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
+        /*
+            Values from Global configuration form
+        */
         private String machineUser;
         private String machinePassword;
 

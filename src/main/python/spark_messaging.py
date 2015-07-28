@@ -1,10 +1,6 @@
 #!/usr/bin/env jython
 
-#import requests
 from Spark import *
-
-def test(x):
-    return True
 
 def message(room_ids, message, machine_user, machine_pw):
     print "Authenticating using machine account login"
