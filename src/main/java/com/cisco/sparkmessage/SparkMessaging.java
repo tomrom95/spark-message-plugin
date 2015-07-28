@@ -60,6 +60,9 @@ public class SparkMessaging extends Notifier {
     }
 
     public SparkMessaging() {
+        /*
+            Blank constructor mostly used for the pyexec call in doAddMachine
+        */
         this.rooms = "";
         this.startMessage = "";
         this.failMessage = "";
@@ -72,7 +75,9 @@ public class SparkMessaging extends Notifier {
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-
+        /*
+            Method called at end of build to message about success/failures
+        */
         if (fail || success) {
 
             String machineUser = getDescriptor().getMachineUser();
@@ -120,7 +125,9 @@ public class SparkMessaging extends Notifier {
 
     @Override
     public boolean prebuild(AbstractBuild build, BuildListener listener) {
-
+        /*
+            Called before build process begins about build start
+        */
         if (start) {
             String machineUser = getDescriptor().getMachineUser();
             String machinePassword = getDescriptor().getMachinePassword();
@@ -151,6 +158,9 @@ public class SparkMessaging extends Notifier {
     }
 
     private void sendMessage(String message, String machineUser, String machinePassword, BuildListener listener) {
+        /*
+            Messages spark room by executing python script spark_messaging.py, which handles the request calls
+        */
         try {
             PythonExecutor pexec = new PythonExecutor(this);
             boolean result = pexec.execPythonBool("message", this.rooms, message, machineUser, machinePassword);
@@ -257,6 +267,10 @@ public class SparkMessaging extends Notifier {
             return s == null || s.trim().length() == 0;
         }
 
+        /*
+            Add machine button implemented as "form validation" so it can be in the build config.
+            Requires extra oauthToken field.
+        */
         public FormValidation doAddMachine(@QueryParameter("oauthToken") final String oauthToken,
                 @QueryParameter("rooms") final String rooms) throws IOException, ServletException {
             try {
