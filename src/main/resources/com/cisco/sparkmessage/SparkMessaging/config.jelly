@@ -1,10 +1,43 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-    <f:entry title="Rooms" field="rooms">
-        <f:textbox />
+    <f:entry title="Rooms" field="rooms" name="rooms">
+        <f:textbox checkUrl="'descriptorByName/SparkMessaging/roomCheck?roomString='+encodeURIComponent(this.value)"/>
     </f:entry>
-    <f:entry title="Process Name" field="processName">
-        <f:textbox />
-    </f:entry>
+
+    <f:section title="Advanced Options">
+    	<f:advanced>
+    		<f:entry title="Notify on Start" field="start" name="start">
+    			<f:checkbox default="true" />
+    		</f:entry>
+    		<f:entry title="Custom Start Message" field="startMessage" name="startMessage">
+			    <f:textbox />
+			</f:entry>
+			<f:entry title="Notify on Failure" field="fail" name="fail">
+    			<f:checkbox default="true" />
+    		</f:entry>
+    		<f:entry title="Custom Failure Message" field="failMessage" name="failMessage">
+			    <f:textbox />
+			</f:entry>
+			<f:entry title="Notify on Success" field="success" name="success">
+    			<f:checkbox default="true" />
+    		</f:entry>
+    		<f:entry title="Custom Success Message" field="successMessage" name="successMessage">
+			    <f:textbox />
+			</f:entry>
+			<f:entry title="Add URLs to Messages" field="addUrl" name="addUrl">
+    			<f:checkbox default="true" />
+    		</f:entry>
+	    </f:advanced>
+	</f:section>
+
+    <f:section title="Add Machine Account to Spark Room (if not already present)">
+	    <f:entry title="OAuth2 Token" field="oauthToken" name="oauthToken">
+	        <f:textbox />
+	    </f:entry>
+
+	    <f:validateButton
+		   title="${%Add Machine to Room}" progress="${%Adding, please wait...}"
+		   method="addMachine" with="rooms,oauthToken" />
+	</f:section>
 
 </j:jelly>

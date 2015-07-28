@@ -29,87 +29,131 @@ import java.util.List;
 public class SparkMessaging extends Notifier {
 
     private final String rooms;
-    private final String processName;
+    private final String startMessage;
+    private final String failMessage;
+    private final String successMessage;
+    private final boolean start;
+    private final boolean fail;
+    private final boolean success;
+    private final boolean addUrl;
 
     @DataBoundConstructor
-    public SparkMessaging(String rooms, String processName) {
+    public SparkMessaging(String rooms,
+                          String startMessage, String failMessage, String successMessage,
+                          boolean start, boolean fail, boolean success,
+                          boolean addUrl) {
         this.rooms = rooms;
-        this.processName = processName;
+        this.startMessage = startMessage;
+        this.failMessage = failMessage;
+        this.successMessage = successMessage;
+        this.start = start;
+        this.fail = fail;
+        this.success = success;
+        this.addUrl = addUrl;
+    }
+
+    public SparkMessaging() {
+        this.rooms = "";
+        this.startMessage = "";
+        this.failMessage = "";
+        this.successMessage = "";
+        this.start = false;
+        this.fail = false;
+        this.success = false;
+        this.addUrl = false;
     }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
 
-        String machineUser = getDescriptor().getMachineUser();
-        String machinePassword = getDescriptor().getMachinePassword();
+        if (fail || success) {
 
-        if (isEmpty(rooms)) {
-            listener.error(
-                    "No rooms specified");
-            return true;
-        }
+            String machineUser = getDescriptor().getMachineUser();
+            String machinePassword = getDescriptor().getMachinePassword();
 
-        if (isEmpty(machineUser) || isEmpty(machinePassword)) {
-            listener.error(
-                    "Machine Account credentials required");
-            return true;
-        }
+            if (isEmpty(rooms)) {
+                listener.error(
+                        "No rooms specified");
+                return true;
+            }
 
-        String message = "";
-        if (!isEmpty(processName)) {
-            message = processName;
-        } else {
-            message = build.getProject().getDisplayName();
-        }
+            if (isEmpty(machineUser) || isEmpty(machinePassword)) {
+                listener.error(
+                        "Machine Account credentials required");
+                return true;
+            }
 
-        if (build.getResult() == Result.FAILURE || build.getResult() == Result.UNSTABLE) {
-            message += " has failed";
-        } else {
-            message += " has successfully completed";
-        }
-        listener.getLogger().println(message);
-        PythonExecutor pexec = new PythonExecutor(this);
-        if (pexec == null) {
-            listener.getLogger().println("Whoops this is null");
-            return true;
-        }
-        boolean result = pexec.execPythonBool("test", message);
+            String message = "";
+            if (addUrl){
+                message = " " + build.getAbsoluteUrl();
+            }
 
+            if (build.getResult() == Result.FAILURE || build.getResult() == Result.UNSTABLE) {
+                if (this.fail) {
+                    if (!isEmpty(failMessage)){
+                        message = failMessage + message;
+                    } else{
+                        message = build.getProject().getDisplayName() + " has failed" + message;
+                    }
+                    sendMessage(message, machineUser, machinePassword, listener);
+                } 
+            } else {
+                if (this.success) {
+                    if (!isEmpty(successMessage)){
+                        message = successMessage + message;
+                    } else{
+                        message = build.getProject().getDisplayName() + " has succeeded" + message;
+                    }
+                    sendMessage(message, machineUser, machinePassword, listener);
+                }
+            }
+        }
         return true;
     }
 
     @Override
     public boolean prebuild(AbstractBuild build, BuildListener listener) {
-        String machineUser = getDescriptor().getMachineUser();
-        String machinePassword = getDescriptor().getMachinePassword();
 
-        if (isEmpty(rooms)) {
-            listener.error(
-                    "No rooms specified");
-            return true;
-        }
+        if (start) {
+            String machineUser = getDescriptor().getMachineUser();
+            String machinePassword = getDescriptor().getMachinePassword();
+            if (isEmpty(rooms)) {
+                listener.error(
+                        "No rooms specified");
+                return true;
+            }
 
-        if (isEmpty(machineUser) || isEmpty(machinePassword)) {
-            listener.error(
-                    "Machine Account credentials required");
-            return true;
-        }
+            if (isEmpty(machineUser) || isEmpty(machinePassword)) {
+                listener.error(
+                        "Machine Account credentials required");
+                return true;
+            }
 
-        String message = "";
-        if (!isEmpty(processName)) {
-            message = processName;
-        } else {
-            message = build.getProject().getDisplayName();
+            String message = "";
+            if (!isEmpty(startMessage)) {
+                message = startMessage;
+            } else {
+                message = "Starting " + build.getProject().getDisplayName();
+            }
+            if (addUrl){
+                message += " " + build.getAbsoluteUrl() + "console";
+            }
+            sendMessage(message, machineUser, machinePassword, listener);
         }
-        message = "Starting " + message;
-        listener.getLogger().println(message);
-        PythonExecutor pexec = new PythonExecutor(this);
-        if (pexec == null) {
-            listener.getLogger().println("Whoops this is null");
-            return true;
-        }
-        boolean result = pexec.execPythonBool("test", message);
         return true;
+    }
+
+    private void sendMessage(String message, String machineUser, String machinePassword, BuildListener listener) {
+        try {
+            PythonExecutor pexec = new PythonExecutor(this);
+            boolean result = pexec.execPythonBool("message", this.rooms, message, machineUser, machinePassword);
+            if (!result) {
+                listener.getLogger().println("Unable to message Spark Room");
+            }
+            listener.getLogger().println("Message to Spark Room sent: " + message);
+        } catch (Exception e) {
+            listener.getLogger().println("Error messaging room: " + e.toString());
+        }
     }
 
     // Overridden for better type safety.
@@ -124,18 +168,31 @@ public class SparkMessaging extends Notifier {
         return rooms;
     }
 
-    public String getProcessName() {
-        return processName;
+    public String getStartMessage() {
+        return startMessage;
+    }
+    public String getFailMessage() {
+        return failMessage;
+    }
+    public String getSuccessMessage() {
+        return successMessage;
     }
 
-    /**
-     * Descriptor for {@link SMSNotification}. Used as a singleton.
-     * The class is marked as public so that it can be accessed from views.
-     *
-     * <p>
-     * See <tt>src/main/resources/hudson/plugin/hello_world/SMSNotification/*.jelly</tt>
-     * for the actual HTML fragment for the configuration screen.
-     */
+    public boolean getStart() {
+        return start;
+    }
+    public boolean getFail() {
+        return fail;
+    }
+    public boolean getSuccess() {
+        return success;
+    }
+
+    public boolean getAddUrl() {
+        return addUrl;
+    }
+
+
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
@@ -185,6 +242,31 @@ public class SparkMessaging extends Notifier {
                 return FormValidation.warning("Spark rooms required");
             }
             return FormValidation.ok();
+        }
+
+        private boolean isEmpty(String s) {
+            return s == null || s.trim().length() == 0;
+        }
+
+        public FormValidation doAddMachine(@QueryParameter("oauthToken") final String oauthToken,
+                @QueryParameter("rooms") final String rooms) throws IOException, ServletException {
+            try {
+                SparkMessaging temp = new SparkMessaging();
+                PythonExecutor pexec = new PythonExecutor(temp);
+                if( isEmpty(this.machineUser) || isEmpty(this.machinePassword)){
+                    return FormValidation.error("Machine Credentials required");
+                }
+                if( isEmpty(oauthToken)){
+                    return FormValidation.error("User OAuth2 token required");
+                }
+                boolean result = pexec.execPythonBool("add_machine", rooms, oauthToken, this.machineUser, this.machinePassword);
+                if (!result) {
+                    return FormValidation.error("Could not add Machine Account to Room");
+                }
+                return FormValidation.ok("Success");
+            } catch (Exception e) {
+                return FormValidation.error("Could not add Machine to Room");
+            }
         }
     }
 
