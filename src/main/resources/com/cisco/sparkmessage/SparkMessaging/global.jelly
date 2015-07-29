@@ -12,6 +12,11 @@
             <f:textbox />
         </f:entry>
         <f:entry
+                title="Machine Organization ID"
+                field="orgId">
+            <f:textbox />
+        </f:entry>
+        <f:entry
                 title="Basic Auth Token"
                 field="basicAuth">
             <f:textbox />

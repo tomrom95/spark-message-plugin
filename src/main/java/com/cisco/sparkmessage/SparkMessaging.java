@@ -83,6 +83,7 @@ public class SparkMessaging extends Notifier {
             String machineUser = getDescriptor().getMachineUser();
             String machinePassword = getDescriptor().getMachinePassword();
             String basicAuth = getDescriptor().getBasicAuth();
+            String orgId = getDescriptor().getOrgId();
 
             if (isEmpty(rooms)) {
                 listener.getLogger().println(
@@ -90,7 +91,7 @@ public class SparkMessaging extends Notifier {
                 return true;
             }
 
-            if (isEmpty(machineUser) || isEmpty(machinePassword) || isEmpty(basicAuth)) {
+            if (isEmpty(machineUser) || isEmpty(machinePassword) || isEmpty(basicAuth) || isEmpty(orgId)) {
                 listener.getLogger().println(
                         "Error Messaging Spark Room: Machine Account credentials required");
                 return true;
@@ -108,7 +109,7 @@ public class SparkMessaging extends Notifier {
                     } else{
                         message = build.getProject().getDisplayName() + " has failed" + message;
                     }
-                    sendMessage(message, machineUser, machinePassword, basicAuth, listener);
+                    sendMessage(message, machineUser, machinePassword, basicAuth, orgId, listener);
                 } 
             } else {
                 if (this.success) {
@@ -117,7 +118,7 @@ public class SparkMessaging extends Notifier {
                     } else{
                         message = build.getProject().getDisplayName() + " has succeeded" + message;
                     }
-                    sendMessage(message, machineUser, machinePassword, basicAuth, listener);
+                    sendMessage(message, machineUser, machinePassword, basicAuth, orgId, listener);
                 }
             }
         }
@@ -133,13 +134,14 @@ public class SparkMessaging extends Notifier {
             String machineUser = getDescriptor().getMachineUser();
             String machinePassword = getDescriptor().getMachinePassword();
             String basicAuth = getDescriptor().getBasicAuth();
+            String orgId = getDescriptor().getOrgId();
             if (isEmpty(rooms)) {
                 listener.getLogger().println(
                         "Error Messaging Spark Room: No rooms specified");
                 return true;
             }
 
-            if (isEmpty(machineUser) || isEmpty(machinePassword) || isEmpty(basicAuth)) {
+            if (isEmpty(machineUser) || isEmpty(machinePassword) || isEmpty(basicAuth) || isEmpty(orgId)) {
                 listener.getLogger().println(
                         "Error Messaging Spark Room: Machine Account credentials required");
                 return true;
@@ -154,18 +156,18 @@ public class SparkMessaging extends Notifier {
             if (addUrl){
                 message += " " + build.getAbsoluteUrl() + "console";
             }
-            sendMessage(message, machineUser, machinePassword, basicAuth, listener);
+            sendMessage(message, machineUser, machinePassword, basicAuth, orgId, listener);
         }
         return true;
     }
 
-    private void sendMessage(String message, String machineUser, String machinePassword, String basicAuth, BuildListener listener) {
+    private void sendMessage(String message, String machineUser, String machinePassword, String basicAuth, String orgId, BuildListener listener) {
         /*
             Messages spark room by executing python script spark_messaging.py, which handles the request calls
         */
         try {
             PythonExecutor pexec = new PythonExecutor(this);
-            boolean result = pexec.execPythonBool("message", this.rooms, message, machineUser, machinePassword, basicAuth);
+            boolean result = pexec.execPythonBool("message", this.rooms, message, machineUser, machinePassword, orgId, basicAuth);
             if (!result) {
                 listener.getLogger().println("Unable to message Spark Room");
             }
@@ -220,6 +222,7 @@ public class SparkMessaging extends Notifier {
         private String machineUser;
         private String machinePassword;
         private String basicAuth;
+        private String orgId;
 
         public DescriptorImpl() {
             super(SparkMessaging.class);
@@ -240,6 +243,7 @@ public class SparkMessaging extends Notifier {
             machineUser = formData.getString("machineUser");
             machinePassword = formData.getString("machinePassword");
             basicAuth = formData.getString("basicAuth");
+            orgId = formData.getString("orgId");
             save();
             return super.configure(req,formData);
         }
@@ -268,6 +272,14 @@ public class SparkMessaging extends Notifier {
             this.basicAuth = basicAuth;
         }
 
+        public String getOrgId() {
+            return orgId;
+        }
+
+        public void setOrgId(String orgId) {
+            this.orgId = orgId;
+        }
+
         public FormValidation doRoomCheck(@QueryParameter String roomString) throws IOException, ServletException {
             if (roomString == null || roomString.trim().length() == 0) {
                 return FormValidation.warning("Spark rooms required");
@@ -288,13 +300,14 @@ public class SparkMessaging extends Notifier {
             try {
                 SparkMessaging temp = new SparkMessaging();
                 PythonExecutor pexec = new PythonExecutor(temp);
-                if( isEmpty(this.machineUser) || isEmpty(this.machinePassword) || isEmpty(this.basicAuth)) {
+                if( isEmpty(this.machineUser) || isEmpty(this.machinePassword) || isEmpty(this.basicAuth) || isEmpty(this.orgId)) {
                     return FormValidation.error("Machine Credentials required");
                 }
                 if( isEmpty(oauthToken)){
                     return FormValidation.error("User OAuth2 token required");
                 }
-                boolean result = pexec.execPythonBool("add_machine", rooms, oauthToken, this.machineUser, this.machinePassword, this.basicAuth);
+                boolean result = pexec.execPythonBool("add_machine", rooms, oauthToken, this.machineUser, 
+                                                      this.machinePassword, this.orgId, this.basicAuth);
                 if (!result) {
                     return FormValidation.error("Could not add Machine Account to one/more of the Rooms.\n" + 
                         "Machine could already be present, or the room-id/Oauth2 token could be incorrect");

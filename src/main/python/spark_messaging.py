@@ -5,14 +5,14 @@
 """
 from Spark import *
 
-def message(room_ids, message, machine_user, machine_pw, basic_auth):
+def message(room_ids, message, machine_user, machine_pw, org_id, basic_auth):
     """ Messages spark room using machine info """
     print "Authenticating using machine account login"
     room_list = room_ids.split(',')
     success = True
     for room in room_list:
         try:
-            machine = MachineAccount(machine_user, machine_pw, basic_auth)
+            machine = MachineAccount(machine_user, machine_pw, org_id, basic_auth)
             result = machine.message_spark_room(room, message)
             if result is False:
                 success = False
@@ -21,7 +21,7 @@ def message(room_ids, message, machine_user, machine_pw, basic_auth):
             success = False
     return success
 
-def add_machine(room_ids, oauth_token, machine_user, machine_pw, basic_auth):
+def add_machine(room_ids, oauth_token, machine_user, machine_pw, org_id, basic_auth):
     """ Adds machine account to room using user oauth token """
     print "Adding machine account to rooms"
     room_list = room_ids.split(',')
@@ -29,7 +29,7 @@ def add_machine(room_ids, oauth_token, machine_user, machine_pw, basic_auth):
     for room in room_list:
         try:
             user = User(oauth_token)
-            machine = MachineAccount(machine_user, machine_pw, basic_auth)
+            machine = MachineAccount(machine_user, machine_pw, org_id, basic_auth)
             result = user.add_user_to_spark_room(room, machine)
             if result is False:
                 success = False
