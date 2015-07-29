@@ -9,7 +9,7 @@ class User(object):
 
     def __init__(self,
                  token,
-                 org_id="1eb65fdf-9643-417f-9974-ad72cae0e10f",
+                 org_id,
                  host_name="conv-a.wbx2.com"):
         self.token = token
         self.user_url = "https://%s/conversation/api/v1/users" %host_name
@@ -30,13 +30,13 @@ class User(object):
 
     def message_spark_room(self, room_id, message):
         """ Messages spark room, specified by room_id, as user """
-        room = SparkRoom(room_id)
+        room = SparkRoom(room_id, self.org_id)
         return room.send_message_as_user(message, self.token)
 
     def add_user_to_spark_room(self, room_id, new_user):
         """ Adds other user to room, specified by room_id.
             other_user must be instance of User """
-        room = SparkRoom(room_id)
+        room = SparkRoom(room_id, self.org_id)
         return room.add_to_room_by_id(self.user_id, new_user.user_id, self.token)
 
 class MachineAccount(User):
@@ -104,7 +104,7 @@ class SparkRoom(object):
 
     def __init__(self,
                  room_id,
-                 org_id="1eb65fdf-9643-417f-9974-ad72cae0e10f",
+                 org_id,
                  host_name="conv-a.wbx2.com"):
         self.room_id = room_id
         self.org_id = org_id
