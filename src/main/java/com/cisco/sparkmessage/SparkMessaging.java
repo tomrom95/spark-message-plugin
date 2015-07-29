@@ -169,12 +169,15 @@ public class SparkMessaging extends Notifier {
             PythonExecutor pexec = new PythonExecutor(this);
             boolean result = pexec.execPythonBool("message", this.rooms, message, machineUser, machinePassword, orgId, basicAuth);
             if (!result) {
-                listener.getLogger().println("Unable to message Spark Room");
+                listener.getLogger().println("Unable to message Spark Room(s)");
+                return;
             }
-            listener.getLogger().println("Message to Spark Room sent: " + message);
+            listener.getLogger().println("Message to Spark Room(s) sent: " + message);
+            return;
         } catch (Exception e) {
             listener.getLogger().println("Error Messaging Spark Room: " + e.toString());
         }
+        return;
     }
 
     // Overridden for better type safety.
