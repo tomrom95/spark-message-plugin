@@ -190,7 +190,6 @@ public class SparkMessaging extends Notifier {
             }
         } catch (Exception e) {
             listener.getLogger().println("Unable to replace all environment variables");
-            return message;
         }
         try {
             Map<String, String> vars = build.getBuildVariables();
@@ -199,7 +198,6 @@ public class SparkMessaging extends Notifier {
             }
         } catch (Exception e) {
             listener.getLogger().println("Unable to replace all build parameters");
-            return message;
         }
         return message;
     }
