@@ -85,14 +85,14 @@ public class SparkMessaging extends Notifier {
             String basicAuth = getDescriptor().getBasicAuth();
 
             if (isEmpty(rooms)) {
-                listener.error(
-                        "No rooms specified");
+                listener.getLogger().println(
+                        "Error Messaging Spark Room: No rooms specified");
                 return true;
             }
 
             if (isEmpty(machineUser) || isEmpty(machinePassword) || isEmpty(basicAuth)) {
-                listener.error(
-                        "Machine Account credentials required");
+                listener.getLogger().println(
+                        "Error Messaging Spark Room: Machine Account credentials required");
                 return true;
             }
 
@@ -134,14 +134,14 @@ public class SparkMessaging extends Notifier {
             String machinePassword = getDescriptor().getMachinePassword();
             String basicAuth = getDescriptor().getBasicAuth();
             if (isEmpty(rooms)) {
-                listener.error(
-                        "No rooms specified");
+                listener.getLogger().println(
+                        "Error Messaging Spark Room: No rooms specified");
                 return true;
             }
 
             if (isEmpty(machineUser) || isEmpty(machinePassword) || isEmpty(basicAuth)) {
-                listener.error(
-                        "Machine Account credentials required");
+                listener.getLogger().println(
+                        "Error Messaging Spark Room: Machine Account credentials required");
                 return true;
             }
 
@@ -171,7 +171,7 @@ public class SparkMessaging extends Notifier {
             }
             listener.getLogger().println("Message to Spark Room sent: " + message);
         } catch (Exception e) {
-            listener.getLogger().println("Error messaging room: " + e.toString());
+            listener.getLogger().println("Error Messaging Spark Room: " + e.toString());
         }
     }
 
