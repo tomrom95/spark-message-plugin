@@ -28,7 +28,7 @@ def add_machine(room_ids, oauth_token, machine_user, machine_pw, org_id, basic_a
     success = True
     for room in room_list:
         try:
-            user = User(oauth_token)
+            user = User(oauth_token, org_id)
             machine = MachineAccount(machine_user, machine_pw, org_id, basic_auth)
             result = user.add_user_to_spark_room(room, machine)
             if result is False:
