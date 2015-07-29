@@ -1,4 +1,5 @@
 package com.cisco.sparkmessage;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -105,7 +106,7 @@ public class SparkMessaging extends Notifier {
             if (build.getResult() == Result.FAILURE || build.getResult() == Result.UNSTABLE) {
                 if (this.fail) {
                     if (!isEmpty(failMessage)){
-                        message = failMessage + message;
+                        message = replaceEnvVars(failMessage, build, listener) + message;
                     } else{
                         message = build.getProject().getDisplayName() + " has failed" + message;
                     }
@@ -114,7 +115,7 @@ public class SparkMessaging extends Notifier {
             } else {
                 if (this.success) {
                     if (!isEmpty(successMessage)){
-                        message = successMessage + message;
+                        message = replaceEnvVars(successMessage, build, listener) + message;
                     } else{
                         message = build.getProject().getDisplayName() + " has succeeded" + message;
                     }
@@ -149,7 +150,7 @@ public class SparkMessaging extends Notifier {
 
             String message = "";
             if (!isEmpty(startMessage)) {
-                message = startMessage;
+                message = replaceEnvVars(startMessage, build, listener);
             } else {
                 message = "Starting " + build.getProject().getDisplayName();
             }
@@ -178,6 +179,19 @@ public class SparkMessaging extends Notifier {
             listener.getLogger().println("Error Messaging Spark Room: " + e.toString());
         }
         return;
+    }
+
+    private String replaceEnvVars(String message, AbstractBuild build, BuildListener listener) {
+        try {
+            EnvVars env = build.getEnvironment(listener);
+            for (String key : env.keySet()) {
+                message = message.replaceAll("\\$\\{?" + key + "\\}?", env.get(key));
+            }
+        } catch (Exception e) {
+            listener.getLogger().println("Unable to replace all environment variables");
+            return message;
+        }
+        return message;
     }
 
     // Overridden for better type safety.
