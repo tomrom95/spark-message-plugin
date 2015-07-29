@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /*
     Main class for handing Spark Messaging. Extends the prebuild Notifier
@@ -106,7 +107,7 @@ public class SparkMessaging extends Notifier {
             if (build.getResult() == Result.FAILURE || build.getResult() == Result.UNSTABLE) {
                 if (this.fail) {
                     if (!isEmpty(failMessage)){
-                        message = replaceEnvVars(failMessage, build, listener) + message;
+                        message = replaceVariables(failMessage, build, listener) + message;
                     } else{
                         message = build.getProject().getDisplayName() + " has failed" + message;
                     }
@@ -115,7 +116,7 @@ public class SparkMessaging extends Notifier {
             } else {
                 if (this.success) {
                     if (!isEmpty(successMessage)){
-                        message = replaceEnvVars(successMessage, build, listener) + message;
+                        message = replaceVariables(successMessage, build, listener) + message;
                     } else{
                         message = build.getProject().getDisplayName() + " has succeeded" + message;
                     }
@@ -150,7 +151,7 @@ public class SparkMessaging extends Notifier {
 
             String message = "";
             if (!isEmpty(startMessage)) {
-                message = replaceEnvVars(startMessage, build, listener);
+                message = replaceVariables(startMessage, build, listener);
             } else {
                 message = "Starting " + build.getProject().getDisplayName();
             }
@@ -181,7 +182,7 @@ public class SparkMessaging extends Notifier {
         return;
     }
 
-    private String replaceEnvVars(String message, AbstractBuild build, BuildListener listener) {
+    private String replaceVariables(String message, AbstractBuild build, BuildListener listener) {
         try {
             EnvVars env = build.getEnvironment(listener);
             for (String key : env.keySet()) {
@@ -189,6 +190,15 @@ public class SparkMessaging extends Notifier {
             }
         } catch (Exception e) {
             listener.getLogger().println("Unable to replace all environment variables");
+            return message;
+        }
+        try {
+            Map<String, String> vars = build.getBuildVariables();
+            for (String key : vars.keySet()) {
+                message = message.replaceAll("\\$\\{?" + key + "\\}?", vars.get(key));
+            }
+        } catch (Exception e) {
+            listener.getLogger().println("Unable to replace all build parameters");
             return message;
         }
         return message;
