@@ -296,7 +296,8 @@ public class SparkMessaging extends Notifier {
                 }
                 boolean result = pexec.execPythonBool("add_machine", rooms, oauthToken, this.machineUser, this.machinePassword, this.basicAuth);
                 if (!result) {
-                    return FormValidation.error("Could not add Machine Account to Room");
+                    return FormValidation.error("Could not add Machine Account to one/more of the Rooms.\n" + 
+                        "Machine could already be present, or the room-id/Oauth2 token could be incorrect");
                 }
                 return FormValidation.ok("Success");
             } catch (Exception e) {
