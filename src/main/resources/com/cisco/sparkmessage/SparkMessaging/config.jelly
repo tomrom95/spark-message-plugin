@@ -1,6 +1,6 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-    <f:entry title="Rooms" field="rooms" name="rooms">
+    <f:entry title="Rooms" field="rooms" name="rooms" help="/plugin/spark-message/help-rooms.html">
         <f:textbox checkUrl="'descriptorByName/SparkMessaging/roomCheck?roomString='+encodeURIComponent(this.value)"/>
     </f:entry>
 
@@ -9,29 +9,29 @@
     		<f:entry title="Notify on Start" field="start" name="start">
     			<f:checkbox default="true" />
     		</f:entry>
-    		<f:entry title="Custom Start Message" field="startMessage" name="startMessage">
+    		<f:entry title="Custom Start Message" field="startMessage" name="startMessage" help="/plugin/spark-message/customhelp.html">
 			    <f:textbox />
 			</f:entry>
 			<f:entry title="Notify on Failure" field="fail" name="fail">
     			<f:checkbox default="true" />
     		</f:entry>
-    		<f:entry title="Custom Failure Message" field="failMessage" name="failMessage">
+    		<f:entry title="Custom Failure Message" field="failMessage" name="failMessage" help="/plugin/spark-message/customhelp.html">
 			    <f:textbox />
 			</f:entry>
 			<f:entry title="Notify on Success" field="success" name="success">
     			<f:checkbox default="true" />
     		</f:entry>
-    		<f:entry title="Custom Success Message" field="successMessage" name="successMessage">
+    		<f:entry title="Custom Success Message" field="successMessage" name="successMessage" help="/plugin/spark-message/customhelp.html">
 			    <f:textbox />
 			</f:entry>
-			<f:entry title="Add URLs to Messages" field="addUrl" name="addUrl">
+			<f:entry title="Add URLs to Messages" field="addUrl" name="addUrl" help="/plugin/spark-message/help-addUrl.html">
     			<f:checkbox default="true" />
     		</f:entry>
 	    </f:advanced>
 	</f:section>
 
     <f:section title="Add Machine Account to Spark Rooms (if not already present)">
-	    <f:entry title="OAuth2 Token" field="oauthToken" name="oauthToken">
+	    <f:entry title="OAuth2 Token" field="oauthToken" name="oauthToken" help="/plugin/spark-message/help-oauthToken.html">
 	        <f:textbox />
 	    </f:entry>
 

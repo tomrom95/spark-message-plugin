@@ -13,12 +13,14 @@
         </f:entry>
         <f:entry
                 title="Machine Organization ID"
-                field="orgId">
+                field="orgId"
+                help="/plugin/spark-message/help-orgId.html">
             <f:textbox />
         </f:entry>
         <f:entry
                 title="Basic Auth Token"
-                field="basicAuth">
+                field="basicAuth"
+                help="/plugin/spark-message/help-basicAuth.html">
             <f:textbox />
         </f:entry>
     </f:section>
