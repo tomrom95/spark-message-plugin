@@ -1,3 +1,10 @@
+/**
+ * @author Tommy Romano (tomrom95)
+ *
+ * Main class for handing Spark Messaging. Extends the prebuild Notifier
+ * class from Hudson.
+*/
+
 package com.cisco.sparkmessage;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -28,10 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/*
-    Main class for handing Spark Messaging. Extends the prebuild Notifier
-    class from Hudson.
-*/
 public class SparkMessaging extends Notifier {
 
     /*

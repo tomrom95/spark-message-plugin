@@ -2,6 +2,8 @@
 """
     Main Python script to execute Spark actions.
     Called from SparkMessaging.java
+
+    Author: Tommy Romano (tomrom95)
 """
 from Spark import *
 

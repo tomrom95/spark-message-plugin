@@ -1,4 +1,11 @@
 #!/usr/bin/env jython
+"""
+    Main Spark Library. Handles users, Machine Accounts, and Spark Rooms
+    through REST calls.
+    Requires simplejson library, included in the Python folder.
+
+    Author: Tommy Romano (tomrom95)
+"""
 import urllib2, urllib
 import simplejson as json
 import warnings
